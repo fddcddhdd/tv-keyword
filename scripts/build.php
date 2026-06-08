@@ -13,8 +13,8 @@
 date_default_timezone_set('Asia/Tokyo');
 
 const BASE_URL = 'https://bangumi.org';
-const FETCH_DAYS = 1;
-const DISPLAY_DAYS = 1;
+const FETCH_DAYS = 3;
+const DISPLAY_DAYS = 3;
 const REQUEST_SLEEP_MICROSECONDS = 250000;
 
 $rootDir = dirname(__DIR__);
