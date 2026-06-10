@@ -13,8 +13,8 @@
 date_default_timezone_set('Asia/Tokyo');
 
 const BASE_URL = 'https://bangumi.org';
-const FETCH_DAYS = 1;
-const DISPLAY_DAYS = 1;
+const FETCH_DAYS = 2;
+const DISPLAY_DAYS = 2;
 const REQUEST_SLEEP_MICROSECONDS = 250000;
 
 $rootDir = dirname(__DIR__);
@@ -559,8 +559,8 @@ function buildHtml(array $keywords, array $hits, array $stats): string
     $html .= "<p>更新日時: " . h($updatedAt) . "</p>\n";
     $html .= "<p>検索対象番組数: " . h((string)$programCount) . " / ヒット件数: " . h((string)$hitCount) . "</p>\n";
 
-    // $html .= "<p><b>キーワード:</b> " . h(implode(' ', $keywords)) . "</p>\n";
-    // $html .= "<hr>\n";
+    $html .= "<p><b>キーワード:</b> " . h(implode(' ', $keywords)) . "</p>\n";
+    $html .= "<hr>\n";
 
     if (empty($hits)) {
         $html .= "<p>ヒットした番組はありません。</p>\n";
