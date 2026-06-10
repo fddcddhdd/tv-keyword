@@ -500,64 +500,77 @@ function formatProgramTime(string $startDatetime): string
 }
 
 /**
- * HTMLを生成する。
+ * CSSなしのシンプルなHTMLを生成する。
  */
 function buildHtml(array $keywords, array $hits, array $stats): string
 {
+    // 番組を放送開始日時順に並び替える
+    usort($hits, function ($a, $b) {
+        $timeA = strtotime($a['start_datetime'] ?? '');
+        $timeB = strtotime($b['start_datetime'] ?? '');
+
+        if ($timeA === $timeB) {
+            return strcmp($a['channel'] ?? '', $b['channel'] ?? '');
+        }
+
+        return $timeA <=> $timeB;
+    });
+
     $updatedAt = date('Y年n月j日 H:i');
+    $programCount = $stats['program_count'] ?? 0;
+    $hitCount = count($hits);
 
     $html = "<!doctype html>\n";
     $html .= "<html lang=\"ja\">\n";
     $html .= "<head>\n";
-    $html .= "  <meta charset=\"UTF-8\">\n";
-    $html .= "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
-    $html .= "  <title>番組キーワード検索</title>\n";
-    $html .= "  <style>\n";
-    $html .= "    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.7; max-width: 980px; margin: 0 auto; padding: 24px; background: #f7f7f7; color: #222; }\n";
-    $html .= "    h1 { margin-bottom: 0.2em; }\n";
-    $html .= "    .meta { color: #666; font-size: 0.95em; }\n";
-    $html .= "    .keywords { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 14px 16px; }\n";
-    $html .= "    .keyword { display: inline-block; background: #eee; border-radius: 999px; padding: 2px 10px; margin: 3px; }\n";
-    $html .= "    .card { background: #fff; border: 1px solid #ddd; border-radius: 14px; padding: 16px; margin: 16px 0; }\n";
-    $html .= "    .time { font-weight: 700; }\n";
-    $html .= "    .channel { color: #555; }\n";
-    $html .= "    .hit { color: #8a3b00; font-weight: 700; }\n";
-    $html .= "    .title { font-size: 1.15em; font-weight: 700; margin: 8px 0; }\n";
-    $html .= "    .snippet { background: #fff8df; border-left: 4px solid #f0c36d; padding: 8px 10px; margin-top: 8px; }\n";
-    $html .= "    a { color: #0645ad; }\n";
-    $html .= "  </style>\n";
+    $html .= "<meta charset=\"UTF-8\">\n";
+    $html .= "<title>番組キーワード検索</title>\n";
     $html .= "</head>\n";
     $html .= "<body>\n";
-    $html .= "  <h1>番組キーワード検索</h1>\n";
-    $html .= "  <p class=\"meta\">更新日時: " . h($updatedAt) . " / 取得番組数: " . h((string)$stats['program_count']) . " / ヒット件数: " . h((string)count($hits)) . "</p>\n";
 
-    $html .= "  <section class=\"keywords\">\n";
-    $html .= "    <strong>検索キーワード:</strong>\n";
-    foreach ($keywords as $keyword) {
-        $html .= "    <span class=\"keyword\">" . h($keyword) . "</span>\n";
-    }
-    $html .= "  </section>\n";
+    $html .= "<h1>番組キーワード検索</h1>\n";
+    $html .= "<p>更新日時: " . h($updatedAt) . "</p>\n";
+    $html .= "<p>検索対象番組数: " . h((string)$programCount) . " / ヒット件数: " . h((string)$hitCount) . "</p>\n";
+
+    $html .= "<p><b>キーワード:</b> " . h(implode(' ', $keywords)) . "</p>\n";
+    $html .= "<hr>\n";
 
     if (empty($hits)) {
-        $html .= "  <p>直近" . h((string)DISPLAY_DAYS) . "日以内に、登録キーワードへヒットする番組はありませんでした。</p>\n";
-    } else {
-        foreach ($hits as $program) {
-            $html .= "  <article class=\"card\">\n";
-            $html .= "    <div class=\"time\">" . h(formatProgramTime($program['start_datetime'])) . "（" . h((string)$program['duration']) . "分）</div>\n";
-            $html .= "    <div class=\"channel\">" . h($program['channel']) . "</div>\n";
-            $html .= "    <div class=\"hit\">[" . h(implode(' / ', $program['hit_keywords'])) . "]</div>\n";
-            $html .= "    <div class=\"title\"><a href=\"" . h($program['url']) . "\" target=\"_blank\" rel=\"noopener noreferrer\">" . h($program['title']) . "</a></div>\n";
+        $html .= "<p>ヒットした番組はありません。</p>\n";
+    }
 
-            if ($program['summary'] !== '') {
-                $html .= "    <div>" . h($program['summary']) . "</div>\n";
-            }
+    foreach ($hits as $program) {
+        $startTimestamp = strtotime($program['start_datetime'] ?? '');
+        $startDate = $startTimestamp ? date('n月j日', $startTimestamp) : '';
+        $startWeek = $startTimestamp ? mb_substr('日月火水木金土', (int)date('w', $startTimestamp), 1) : '';
+        $startTime = $startTimestamp ? date('H:i', $startTimestamp) : '';
 
+        $hitKeywords = $program['hit_keywords'] ?? [];
+        $hitKeywordText = is_array($hitKeywords) ? implode(' ', $hitKeywords) : (string)$hitKeywords;
+
+        $duration = $program['duration'] ?? '';
+        $channel = $program['channel'] ?? '';
+        $title = $program['title'] ?? '';
+        $url = $program['url'] ?? '#';
+
+        $html .= "<p>\n";
+        $html .= "<b>[" . h($hitKeywordText) . "]</b> ";
+        $html .= "<a href=\"" . h($url) . "\" target=\"_blank\">";
+        $html .= h($startDate . '(' . $startWeek . ') ' . $startTime . '（' . $duration . '分）');
+        $html .= "</a><br>\n";
+
+        $html .= h($channel) . "<br>\n";
+        $html .= "<b>" . h($title) . "</b><br>\n";
+
+        if (!empty($program['hit_snippets']) && is_array($program['hit_snippets'])) {
             foreach ($program['hit_snippets'] as $snippet) {
-                $html .= "    <div class=\"snippet\">" . $snippet . "</div>\n";
+                $html .= $snippet . "<br>\n";
             }
-
-            $html .= "  </article>\n";
+        } elseif (!empty($program['summary'])) {
+            $html .= h($program['summary']) . "<br>\n";
         }
+
+        $html .= "</p>\n\n";
     }
 
     $html .= "</body>\n";
