@@ -160,6 +160,33 @@ function normalizeText(?string $text): string
     $text = preg_replace('/\s+/u', ' ', $text);
     return trim((string)$text);
 }
+/**
+ * 有料BSチャンネルを除外する。
+ */
+function isExcludedPaidChannel(array $program): bool
+{
+    $paidChannels = [
+        'WOWOW',
+        'スターチャンネル',
+        'J:COM BS',
+    ];
+
+    $text = implode(' ', [
+        $program['channel'] ?? '',
+        $program['title'] ?? '',
+        $program['summary'] ?? '',
+        $program['detail'] ?? '',
+    ]);
+
+    foreach ($paidChannels as $paidChannel) {
+        if (mb_strpos($text, $paidChannel) !== false) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 /**
  * HTTP取得。
@@ -605,16 +632,16 @@ $channelMaster = [
         'BSテレ東',
         'ＢＳフジ',
         'BSフジ・181',
-        // 'WOWOWプライム',
-        // 'WOWOWライブ',
-        // 'WOWOWシネマ',
+        'WOWOWプライム',
+        'WOWOWライブ',
+        'WOWOWシネマ',
         'BS11イレブン',
         'BS12 トゥエルビ',
         'BS松竹東急',
         'BSJapanext',
-        // 'J:COM BS',
+        'J:COM BS',
         'BSよしもと',
-        // 'スターチャンネル',
+        'スターチャンネル',
         '放送大学ex',
         '放送大学on',
     ],
@@ -709,7 +736,11 @@ try {
                     usleep(REQUEST_SLEEP_MICROSECONDS);
                     continue;
                 }
-
+                // 有料BSチャンネルは除外する
+                if (isExcludedPaidChannel($program)) {
+                    logLine('有料チャンネル除外: ' . ($program['channel'] ?? '') . ' ' . ($program['title'] ?? ''));
+                    continue;
+                }
                 $successCount++;
                 $programCount++;
 
