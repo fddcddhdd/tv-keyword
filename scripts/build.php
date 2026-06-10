@@ -566,9 +566,7 @@ function buildHtml(array $keywords, array $hits, array $stats): string
             foreach ($program['hit_snippets'] as $snippet) {
                 $html .= $snippet . "<br>\n";
             }
-        } elseif (!empty($program['summary'])) {
-            $html .= h($program['summary']) . "<br>\n";
-        }
+        } 
 
         $html .= "</p>\n\n";
     }
