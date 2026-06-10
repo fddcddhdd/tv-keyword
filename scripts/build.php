@@ -785,6 +785,7 @@ try {
 
     usort($hits, function (array $a, array $b): int {
         return strtotime($a['start_datetime']) <=> strtotime($b['start_datetime']);
+    });
     
     $html = buildHtml($keywords, $hits, [
         'program_count' => $programCount,
