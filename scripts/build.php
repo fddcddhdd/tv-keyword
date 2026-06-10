@@ -532,8 +532,8 @@ function buildHtml(array $keywords, array $hits, array $stats): string
     $html .= "<p>更新日時: " . h($updatedAt) . "</p>\n";
     $html .= "<p>検索対象番組数: " . h((string)$programCount) . " / ヒット件数: " . h((string)$hitCount) . "</p>\n";
 
-    $html .= "<p><b>キーワード:</b> " . h(implode(' ', $keywords)) . "</p>\n";
-    $html .= "<hr>\n";
+    // $html .= "<p><b>キーワード:</b> " . h(implode(' ', $keywords)) . "</p>\n";
+    // $html .= "<hr>\n";
 
     if (empty($hits)) {
         $html .= "<p>ヒットした番組はありません。</p>\n";
