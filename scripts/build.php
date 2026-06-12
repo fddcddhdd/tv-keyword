@@ -551,7 +551,14 @@ function buildHtml(array $keywords, array $hits, array $stats): string
     $html .= "<html lang=\"ja\">\n";
     $html .= "<head>\n";
     $html .= "<meta charset=\"UTF-8\">\n";
+    $html .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
     $html .= "<title>番組キーワード検索</title>\n";
+    $html .= "<style>\n";
+    $html .= "body { font-size: 20px; line-height: 1.6; margin: 16px; }\n";
+    $html .= "h1 { font-size: 24px; }\n";
+    $html .= "p { margin-bottom: 1.8em; }\n";
+    $html .= "a { word-break: break-all; }\n";
+    $html .= "</style>\n";
     $html .= "</head>\n";
     $html .= "<body>\n";
 
