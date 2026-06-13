@@ -527,7 +527,7 @@ function formatProgramTime(string $startDatetime): string
 }
 
 /**
- * CSSなしのシンプルなHTMLを生成する。
+ * スマホでも読みやすいHTMLを生成する。
  */
 function buildHtml(array $keywords, array $hits, array $stats): string
 {
@@ -554,20 +554,26 @@ function buildHtml(array $keywords, array $hits, array $stats): string
     $html .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
     $html .= "<title>番組キーワード検索</title>\n";
     $html .= "<style>\n";
-    $html .= "body { font-size: 20px; line-height: 1.6; margin: 16px; }\n";
-    $html .= "h1 { font-size: 24px; }\n";
-    $html .= "p { margin-bottom: 1.8em; }\n";
-    $html .= "a { word-break: break-all; }\n";
+    $html .= "body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Yu Gothic', 'Meiryo', sans-serif; font-size: 17px; line-height: 1.7; margin: 0; padding: 12px; color: #222; background: #fff; }\n";
+    $html .= "h1 { font-size: 22px; line-height: 1.3; margin: 0 0 14px; }\n";
+    $html .= ".meta { font-size: 14px; color: #666; margin: 0 0 6px; }\n";
+    $html .= ".keywords { font-size: 14px; line-height: 1.6; color: #444; margin: 12px 0 18px; padding-bottom: 14px; border-bottom: 1px solid #ddd; }\n";
+    $html .= ".program { margin: 0 0 28px; }\n";
+    $html .= ".program-head { font-weight: bold; }\n";
+    $html .= ".channel { margin-top: 2px; }\n";
+    $html .= ".program-title { font-weight: bold; margin-top: 2px; }\n";
+    $html .= ".snippet { margin-top: 6px; }\n";
+    $html .= "a { color: #06c; text-decoration: underline; }\n";
+    $html .= "strong { font-weight: bold; }\n";
+    $html .= "@media (min-width: 700px) { body { max-width: 760px; margin: 24px auto; font-size: 16px; padding: 0 16px; } }\n";
     $html .= "</style>\n";
     $html .= "</head>\n";
     $html .= "<body>\n";
 
     $html .= "<h1>番組キーワード検索</h1>\n";
-    $html .= "<p>更新日時: " . h($updatedAt) . "</p>\n";
-    $html .= "<p>検索対象番組数: " . h((string)$programCount) . " / ヒット件数: " . h((string)$hitCount) . "</p>\n";
-
-    $html .= "<p><b>キーワード:</b> " . h(implode(' ', $keywords)) . "</p>\n";
-    $html .= "<hr>\n";
+    $html .= "<p class=\"meta\">更新日時: " . h($updatedAt) . "</p>\n";
+    $html .= "<p class=\"meta\">検索対象番組数: " . h((string)$programCount) . " / ヒット件数: " . h((string)$hitCount) . "</p>\n";
+    $html .= "<p class=\"keywords\"><b>キーワード:</b> " . h(implode(' ', $keywords)) . "</p>\n";
 
     if (empty($hits)) {
         $html .= "<p>ヒットした番組はありません。</p>\n";
@@ -587,22 +593,25 @@ function buildHtml(array $keywords, array $hits, array $stats): string
         $title = $program['title'] ?? '';
         $url = $program['url'] ?? '#';
 
-        $html .= "<p>\n";
-        $html .= "<b>[" . h($hitKeywordText) . "]</b> ";
+        $html .= "<div class=\"program\">\n";
+
+        $html .= "<div class=\"program-head\">";
+        $html .= "[" . h($hitKeywordText) . "] ";
         $html .= "<a href=\"" . h($url) . "\" target=\"_blank\">";
         $html .= h($startDate . '(' . $startWeek . ') ' . $startTime . '（' . $duration . '分）');
-        $html .= "</a><br>\n";
+        $html .= "</a>";
+        $html .= "</div>\n";
 
-        $html .= h($channel) . "<br>\n";
-        $html .= "<b>" . h($title) . "</b><br>\n";
+        $html .= "<div class=\"channel\">" . h($channel) . "</div>\n";
+        $html .= "<div class=\"program-title\">" . h($title) . "</div>\n";
 
         if (!empty($program['hit_snippets']) && is_array($program['hit_snippets'])) {
             foreach ($program['hit_snippets'] as $snippet) {
-                $html .= $snippet . "<br>\n";
+                $html .= "<div class=\"snippet\">" . $snippet . "</div>\n";
             }
-        } 
+        }
 
-        $html .= "</p>\n\n";
+        $html .= "</div>\n\n";
     }
 
     $html .= "</body>\n";
@@ -610,7 +619,6 @@ function buildHtml(array $keywords, array $hits, array $stats): string
 
     return $html;
 }
-
 $channelMaster = [
     'terrestrial' => [
         'NHK総合1・東京',
