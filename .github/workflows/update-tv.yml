@@ -6,8 +6,8 @@ on:
     # GitHub ActionsのcronはUTC基準です。
     # 21:30 UTC = 日本時間 06:30 です。
     - cron: "30 21 * * *"
-    # 01:00 UTC = 日本時間 10:00 です。
-    - cron: "0 1 * * *"
+    # 00:30 UTC = 日本時間 09:30 です。
+    - cron: "30 0 * * *"
 
 permissions:
   contents: read
