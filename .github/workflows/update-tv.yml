@@ -1,13 +1,8 @@
 name: 番組キーワード検索を更新
 
 on:
+  # 定期実行はCloudflare Workerからworkflow_dispatchで起動する。
   workflow_dispatch:
-  schedule:
-    # GitHub ActionsのcronはUTC基準です。
-    # 21:30 UTC = 日本時間 06:30 です。
-    - cron: "30 21 * * *"
-    # 00:30 UTC = 日本時間 09:30 です。
-    - cron: "30 0 * * *"
 
 permissions:
   contents: read
